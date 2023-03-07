@@ -1,6 +1,7 @@
 kind: Module
 description: The backend for the voting UI
 type: container
+dockerfile: "${environment.name == 'remote' ? 'Dockerfile' : 'Dockerfile.dev'}"
 name: goapi
 services:
   - name: goapi
