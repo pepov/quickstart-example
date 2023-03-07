@@ -1,0 +1,28 @@
+kind: Module
+description: The backend for the voting UI
+type: container
+name: goapi
+services:
+  - name: goapi
+    command: ['main']
+    devMode:
+      command: ['/bin/sh']
+      sync:
+        - source: main.go
+          target: /app/main.go
+          mode: "one-way-replica"
+      args: ["-c", "ls /app/main.go | entr -nr go run main.go"]
+    ports:
+      - name: http
+        containerPort: 8080
+        servicePort: 80
+    healthCheck:
+      httpGet:
+        path: /health
+        port: http
+    ingresses:
+      - path: /
+        port: http
+        hostname: goapi.${variables.base-hostname}
+    dependencies:
+      - redis
