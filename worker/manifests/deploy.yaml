@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    garden.io/action: deploy.worker
+    garden.io/service: worker
+  name: worker
+spec:
+  selector:
+    matchLabels:
+      garden.io/action: deploy.worker
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: worker
+      labels:
+        garden.io/action: deploy.worker
+        garden.io/service: worker
+    spec:
+      containers:
+      - env:
+        - name: PGDATABASE
+          value: "${var.postgres-database}"
+        - name: PGUSER
+          value: "${var.postgres-username}"
+        - name: PGPASSWORD
+          value: "${var.postgres-password}"
+        image: "${variables.image}"
+        imagePullPolicy: IfNotPresent
+        name: worker
+        resources:
+          limits:
+            cpu: "1"
+            memory: 1Gi
+          requests:
+            cpu: 10m
+            memory: 90Mi
+        securityContext:
+          allowPrivilegeEscalation: false
