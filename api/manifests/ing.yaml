@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    garden.io/service: api
+  name: api-0
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: "api.${variables.base-hostname}"
+    http:
+      paths:
+      - backend:
+          service:
+            name: api
+            port:
+              number: 80
+        path: /api
+        pathType: Prefix
