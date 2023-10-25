@@ -1,7 +1,7 @@
 apiVersion: garden.io/v1
 kind: Project
 name: vote-demo-quickstart
-defaultEnvironment: ephemeral
+defaultEnvironment: local
 dotIgnoreFile: .gitignore
 
 variables:
