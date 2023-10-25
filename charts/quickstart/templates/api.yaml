@@ -1,0 +1,101 @@
+{{ if .Values.api.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    garden.io/action: deploy.api
+    garden.io/service: api
+  name: api
+spec:
+  selector:
+    matchLabels:
+      garden.io/action: deploy.api
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: api
+      labels:
+        garden.io/action: deploy.api
+        garden.io/service: api
+    spec:
+      containers:
+        - name: api
+          args:
+            - python
+            - app.py
+          env:
+          image: "{{ tpl .Values.api.image . }}"
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 90
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 3
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 90
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 2
+            periodSeconds: 1
+            successThreshold: 2
+            timeoutSeconds: 3
+          resources:
+            limits:
+              cpu: "1"
+              memory: 1Gi
+            requests:
+              cpu: 10m
+              memory: 90Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    garden.io/service: api
+  name: api-0
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: "api.{{ .Values.baseHostname }}"
+      http:
+        paths:
+          - backend:
+              service:
+                name: api
+                port:
+                  number: 80
+            path: /api
+            pathType: Prefix
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    garden.io/service: api
+  name: api
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+  selector:
+    garden.io/action: deploy.api
+{{ end -}}

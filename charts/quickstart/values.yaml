@@ -1,6 +1,11 @@
+baseHostname: local
+
 worker:
   enabled: false
   image: quickstart/worker
   postgresDatabase:
   postgresUsername:
   postgresPassword:
+api:
+  enabled: false
+  image: quickstart/api

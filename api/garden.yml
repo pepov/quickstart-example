@@ -3,16 +3,14 @@ kind: Build
 type: container
 name: api-build
 description: The backend build for the voting UI
-
 ---
 kind: Deploy
-type: kubernetes
+type: helm
 name: api
-build: api-build
 description: The backend deploy for the voting UI
+source:
+  path: "../charts/quickstart"
 spec:
-  files:
-    - manifests/*
   defaultTarget:
     kind: Deployment
     name: api
@@ -23,10 +21,12 @@ spec:
       - containerPath: /app
         mode: "one-way-replica"
         exclude: [.venv]
-variables:
-  image: "${actions.build.api-build.outputs.deployment-image-id}"
+  values:
+    api:
+      enabled: true
+      image: "${actions.build.api-build.outputs.deployment-image-id}"
+      baseHostname: "${variables.base-hostname}"
 dependencies:
-  - deploy.redis
   - build.api-build
 
 ---
