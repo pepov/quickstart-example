@@ -14,8 +14,13 @@ spec:
   defaultTarget:
     kind: Deployment
     name: worker
+  values:
+    worker:
+      enabled: true
+      image: "${actions.build.worker.outputs.deployment-image-id}"
+      postgresDatabase: "${variables.postgres-database}"
+      postgresUsername: "${variables.postgres-database}"
+      postgresPassword: "${variables.postgres-password}"
 dependencies:
   - deploy.redis
   - run.db-init
-variables:
-  image: "${actions.build.worker.outputs.deployment-image-id}"
