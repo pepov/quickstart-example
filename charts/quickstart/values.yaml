@@ -1,0 +1,6 @@
+worker:
+  enabled: false
+  image: quickstart/worker
+  postgresDatabase:
+  postgresUsername:
+  postgresPassword:

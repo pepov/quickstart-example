@@ -6,12 +6,11 @@ type: container
 ---
 kind: Deploy
 description: The worker that collects votes and stores results in a postgres table
-type: kubernetes
+type: helm
 name: worker
-build: worker
+source:
+  path: "../charts/quickstart"
 spec:
-  files:
-    - manifests/*
   defaultTarget:
     kind: Deployment
     name: worker

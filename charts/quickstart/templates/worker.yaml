@@ -1,0 +1,46 @@
+{{ if .Values.worker.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    garden.io/action: deploy.worker
+    garden.io/service: worker
+  name: worker
+spec:
+  selector:
+    matchLabels:
+      garden.io/action: deploy.worker
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: worker
+      labels:
+        garden.io/action: deploy.worker
+        garden.io/service: worker
+    spec:
+      containers:
+        - env:
+            - name: PGDATABASE
+              value: "{{ .Values.worker.postgresDatabase }}"
+            - name: PGUSER
+              value: "{{ .Values.worker.postgresUsername }}"
+            - name: PGPASSWORD
+              value: "{{ .Values.worker.postgresPassword }}"
+          image: "{{ tpl .Values.worker.image . }}"
+          imagePullPolicy: IfNotPresent
+          name: worker
+          resources:
+            limits:
+              cpu: "1"
+              memory: 1Gi
+            requests:
+              cpu: 10m
+              memory: 90Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+{{ end -}}
